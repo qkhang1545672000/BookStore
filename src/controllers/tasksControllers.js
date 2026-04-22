@@ -1,5 +1,5 @@
 import Task from "../models/Task.js";
-import User from "../models/user.js";
+
 // Hàm controller: lấy danh sách tất cả task theo filter (today, week, month, all)
 export const getAllTasks = async (req, res) => {
   // Lấy query param "filter" từ URL, mặc định là "today"
@@ -13,26 +13,16 @@ export const getAllTasks = async (req, res) => {
   switch (filter) {
     case "today": {
       // Lấy ngày hôm nay (00:00:00 của ngày hiện tại)
-      startDate = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate()
-      );
+      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       break;
     }
 
     case "week": {
       // Tính ngày thứ 2 đầu tuần (theo ISO: tuần bắt đầu từ Monday)
       const mondayDate =
-        now.getDate() -
-        (now.getDay() - 1) -
-        (now.getDay() === 0 ? 7 : 0); // Nếu là Chủ nhật (0), lùi về tuần trước
+        now.getDate() - (now.getDay() - 1) - (now.getDay() === 0 ? 7 : 0); // Nếu là Chủ nhật (0), lùi về tuần trước
 
-      startDate = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        mondayDate
-      );
+      startDate = new Date(now.getFullYear(), now.getMonth(), mondayDate);
       break;
     }
 
@@ -65,16 +55,10 @@ export const getAllTasks = async (req, res) => {
           tasks: [{ $sort: { createdAt: -1 } }],
 
           // Nhánh 2: Đếm số task có status = "active"
-          activeCount: [
-            { $match: { status: "active" } },
-            { $count: "count" },
-          ],
+          activeCount: [{ $match: { status: "active" } }, { $count: "count" }],
 
           // Nhánh 3: Đếm số task có status = "complete"
-          completeCount: [
-            { $match: { status: "complete" } },
-            { $count: "count" },
-          ],
+          completeCount: [{ $match: { status: "complete" } }, { $count: "count" }],
         },
       },
     ]);
@@ -125,7 +109,7 @@ export const updateTask = async (req, res) => {
         status, // cập nhật status
         completedAt, // cập nhật completedAt
       },
-      { new: true } // new: true => trả về document sau khi cập nhật (mặc định là document cũ)
+      { new: true }, // new: true => trả về document sau khi cập nhật (mặc định là document cũ)
     );
 
     // Nếu không tìm thấy task nào với id đó
@@ -148,9 +132,7 @@ export const deleteTask = async (req, res) => {
   try {
     const deletedTask = await Task.findByIdAndDelete(req.params.id);
     if (!deletedTask) {
-      return res
-        .status(404)
-        .json({ message: "Không tìm thấy nhiệm vụ" });
+      return res.status(404).json({ message: "Không tìm thấy nhiệm vụ" });
     }
     res.status(200).json(deletedTask);
   } catch (error) {
